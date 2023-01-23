@@ -2,13 +2,15 @@ package main
 
 import (
 	"flag"
-	"github.com/labstack/echo/middleware"
 	"net"
 	"net/http"
 	"os"
 
+	"github.com/labstack/echo/middleware"
+
 	"github.com/labstack/echo"
 	"github.com/sirupsen/logrus"
+	"github.com/yogendra0sharma/mendix-privatecloud-go-sdk"
 )
 
 var logger = logrus.New()
@@ -46,6 +48,8 @@ func main() {
 
 	router.GET("/hello", hello)
 
+	router.GET("/mendix", mendixCli)
+
 	logger.Fatal(router.Start(startURL))
 }
 
@@ -57,6 +61,19 @@ func hello(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, HTTPMessageBody{Message: "hello"})
 }
 
+func mendixCli(ctx echo.Context) error {
+	client := mendix.NewClient("")
+	res, err := client.Cli.List()
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, MendixSDKResponse{response: res})
+}
+
 type HTTPMessageBody struct {
 	Message string
+}
+
+type MendixSDKResponse struct {
+	response interface{}
 }
